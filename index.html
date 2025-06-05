@@ -183,7 +183,6 @@
 
             connectWebSocket() {
                 this.ws = new WebSocket('wss://flez.onrender.com');
-
                 this.ws.onopen = () => {
                     console.log('WebSocket conectado');
                     this.updateConnectionStatus('connected');
