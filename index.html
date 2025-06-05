@@ -1,479 +1,247 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notificações em Tempo Real - Online</title>
+    <title>Notificações em Tempo Real - Demonstração</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background: #1f1f1f;
+            /* cinza bem escuro */
+            margin: 0;
             padding: 20px;
+            color: #dddcdc;
+            /* cinza claro */
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+            max-width: 900px;
+            margin: auto;
+            background: #2e2e2e;
+            /* cinza escuro */
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(220, 20, 60, 0.7);
+            /* sombra vermelha */
+            border: 1px solid #dc143c;
+            /* vermelho sangue */
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #dc143c;
+            /* vermelho sangue */
+            text-shadow: 1px 1px 5px #7a0000;
+            /* sombra bordô escuro */
+            margin-bottom: 15px;
         }
 
         h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
             font-size: 2.5rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .online-banner {
-            background: linear-gradient(135deg, #00b894, #00a085);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-            animation: pulse 2s infinite;
+        h2 {
+            font-size: 2rem;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 184, 148, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(0, 184, 148, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 184, 148, 0); }
+        h3 {
+            font-size: 1.4rem;
         }
 
-        .login-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .room-input {
-            margin-bottom: 20px;
-        }
-
-        .room-input input {
-            padding: 12px 20px;
-            border: 2px solid #ddd;
-            border-radius: 25px;
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
             font-size: 1.1rem;
-            width: 300px;
-            max-width: 100%;
-            text-align: center;
-            margin: 0 10px;
+            border-radius: 8px;
+            border: 1px solid #dc143c;
+            background-color: #3a3a3a;
+            /* cinza médio */
+            color: #dddcdc;
+            box-shadow: inset 0 2px 5px rgba(220, 20, 60, 0.3);
+            transition: border-color 0.3s ease;
         }
 
-        .room-input input:focus {
+        input[type="text"]:focus {
+            border-color: #ff1a3c;
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
-        }
-
-        .user-selection {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+            box-shadow: 0 0 8px #ff1a3c;
         }
 
         .user-card {
-            background: linear-gradient(135deg, #ff6b6b, #feca57);
-            border: none;
-            border-radius: 15px;
-            padding: 20px;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
+            background-color: #3a3a3a;
+            color: #dddcdc;
+            border: 2px solid #dc143c;
+            border-radius: 10px;
+            padding: 12px 20px;
+            margin: 6px 6px 6px 0;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-            position: relative;
+            font-weight: 600;
+            box-shadow: 0 3px 6px rgba(220, 20, 60, 0.6);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: inline-block;
         }
 
-        .user-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        .user-card:hover:not(.taken) {
+            background-color: #dc143c;
+            color: #1f1f1f;
         }
 
         .user-card.taken {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            background-color: #5a5a5a;
+            color: #a09a9a;
             cursor: not-allowed;
-            opacity: 0.6;
-        }
-
-        .user-card.taken::after {
-            content: "🔒";
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 1.2rem;
-        }
-
-        .main-app {
-            display: none;
-        }
-
-        .user-info {
-            background: linear-gradient(135deg, #48c6ef, #6f86d6);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-            position: relative;
-        }
-
-        .room-code {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px 15px;
-            border-radius: 20px;
-            margin-top: 10px;
-            font-family: monospace;
-            font-size: 1.1rem;
-            letter-spacing: 2px;
-        }
-
-        .action-section {
-            background: rgba(255, 255, 255, 0.8);
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .send-notification-btn {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            border: none;
-            border-radius: 25px;
-            padding: 15px 30px;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 15px rgba(255, 107, 107, 0.3);
-        }
-
-        .send-notification-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 20px rgba(255, 107, 107, 0.4);
-        }
-
-        .send-notification-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
             box-shadow: none;
         }
 
-        .notifications-section {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-        }
-
-        .notification-item {
-            background: linear-gradient(135deg, #ffecd2, #fcb69f);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 5px solid #ff6b6b;
-            animation: slideIn 0.5s ease;
-            position: relative;
-        }
-
-        .notification-item.urgent {
-            animation: shake 0.5s ease, slideIn 0.5s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .notification-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .notification-text {
-            font-weight: bold;
-            color: #333;
-            flex-grow: 1;
-        }
-
-        .notification-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .confirm-btn, .deny-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .confirm-btn {
-            background: linear-gradient(135deg, #00b894, #00a085);
-            color: white;
-        }
-
-        .deny-btn {
-            background: linear-gradient(135deg, #e17055, #d63031);
-            color: white;
-        }
-
-        .confirm-btn:hover, .deny-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .status-section {
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            padding: 25px;
-        }
-
-        .users-online {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
-
         .user-status {
-            background: linear-gradient(135deg, #a8edea, #fed6e3);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: bold;
-            color: #333;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            margin-bottom: 8px;
+            padding-left: 10px;
+            border-left: 4px solid transparent;
+            transition: border-color 0.3s ease;
         }
 
         .user-status.online {
-            background: linear-gradient(135deg, #d4fc79, #96e6a1);
-            box-shadow: 0 0 15px rgba(150, 230, 161, 0.5);
+            color: #ff6a6a;
+            border-left-color: #dc143c;
         }
 
         .user-status.offline {
-            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            color: #7a7a7a;
         }
 
         .user-status.current-user {
-            background: linear-gradient(135deg, #74b9ff, #0984e3);
-            color: white;
-            box-shadow: 0 0 20px rgba(116, 185, 255, 0.6);
+            font-weight: 700;
+            color: #ff9999;
+            border-left-color: #ff4d4d;
+            background-color: rgba(220, 20, 60, 0.15);
+            padding-left: 8px;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #dc143c;
+            border: none;
+            color: #1f1f1f;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(220, 20, 60, 0.6);
+            transition: background-color 0.25s ease;
+            user-select: none;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #ff1a3c;
+            box-shadow: 0 6px 15px rgba(255, 26, 60, 0.8);
+        }
+
+        button:disabled {
+            background-color: #7a7a7a;
+            color: #ccc2b0;
+            cursor: not-allowed;
+            box-shadow: none;
         }
 
         .connection-status {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 15px;
-            border-radius: 20px;
-            color: white;
-            font-weight: bold;
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
-
-        .connected {
-            background: linear-gradient(135deg, #00b894, #00a085);
-            box-shadow: 0 0 15px rgba(0, 184, 148, 0.5);
-        }
-
-        .connecting {
-            background: linear-gradient(135deg, #fdcb6e, #e17055);
-            animation: pulse 1s infinite;
-        }
-
-        .disconnected {
-            background: linear-gradient(135deg, #e17055, #d63031);
-        }
-
-        .logout-btn {
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(108, 92, 231, 0.3);
-        }
-
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .stat-item {
-            background: rgba(255, 255, 255, 0.8);
-            padding: 15px;
-            border-radius: 10px;
             text-align: center;
-            min-width: 120px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            padding: 10px 0;
+            color: #ff1a3c;
+            text-shadow: 0 0 10px #dc143c;
+            margin-bottom: 15px;
         }
 
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #667eea;
+        .demo-notice {
+            background-color: #3a3a3a;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(220, 20, 60, 0.5);
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: #ff6a6a;
+            text-align: center;
         }
 
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 5px;
+        #notificationsList>div {
+            background-color: #3a3a3a;
+            color: #ff9999;
+            border: 1px solid #dc143c;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(220, 20, 60, 0.4);
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .notification-content {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .notification-buttons {
-                justify-content: center;
-            }
-
-            .room-input input {
-                width: 100%;
-                margin: 10px 0;
-            }
-        }
-
-        .loading {
+        #notificationsList button {
+            background-color: #ff4d4d;
+            color: #1f1f1f;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 10px;
+            box-shadow: 0 3px 9px rgba(255, 77, 77, 0.6);
+            margin-top: 10px;
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        #notificationsList button:hover {
+            background-color: #ff6a6a;
+            box-shadow: 0 5px 14px rgba(255, 106, 106, 0.8);
+        }
+
+        @media (max-width: 600px) {
+            .user-selection button {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+
+            .container {
+                padding: 20px 15px;
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="connection-status" id="connectionStatus">
-        <span class="loading"></span> Conectando...
-    </div>
-    
+    <div class="connection-status" id="connectionStatus">🔴 Modo Demonstração</div>
     <div class="container">
         <h1>🔔 Notificações em Tempo Real</h1>
-        
-        <div class="online-banner">
-            🌐 <strong>APLICATIVO ONLINE REAL</strong> - Funciona entre usuários de verdade!
+        <div class="demo-notice">
+            📋 <strong>APLICATIVO DEMONSTRAÇÃO</strong> - Simula comunicação em tempo real entre usuários
         </div>
-        
-        <div class="login-section" id="loginSection">
-            <div class="room-input">
+        <div id="loginSection">
+            <div>
                 <h3>Código da Sala:</h3>
                 <input type="text" id="roomCode" placeholder="Digite o código da sala" maxlength="10">
-                <br><br>
                 <small>💡 Use o mesmo código para conectar com outros usuários</small>
             </div>
-            
             <h3>Escolha seu usuário:</h3>
-            <div class="user-selection" id="userSelection">
-                <button class="user-card" onclick="selectUser('Usuário 1')">👤 Usuário 1</button>
-                <button class="user-card" onclick="selectUser('Usuário 2')">👤 Usuário 2</button>
-                <button class="user-card" onclick="selectUser('Usuário 3')">👤 Usuário 3</button>
-                <button class="user-card" onclick="selectUser('Usuário 4')">👤 Usuário 4</button>
-                <button class="user-card" onclick="selectUser('Usuário 5')">👤 Usuário 5</button>
-                <button class="user-card" onclick="selectUser('Usuário 6')">👤 Usuário 6</button>
-            </div>
+            <div class="user-selection" id="userSelection"></div>
         </div>
-
-        <div class="main-app" id="mainApp">
-            <div class="user-info">
+        <div id="mainApp" style="display:none;">
+            <div>
                 <h2>Bem-vindo, <span id="currentUserName"></span>!</h2>
-                <div class="room-code">
-                    Sala: <span id="currentRoomCode"></span>
-                </div>
-                <button class="logout-btn" onclick="logout()">Sair</button>
+                <div>Sala: <span id="currentRoomCode"></span></div>
+                <button onclick="app.logout()">Sair</button>
             </div>
-
-            <div class="action-section">
+            <div>
                 <h3>Enviar Notificação</h3>
-                <p>Clique no botão abaixo para enviar uma notificação que todos os outros usuários online precisarão confirmar:</p>
-                <br>
-                <button class="send-notification-btn" id="sendBtn" onclick="sendNotification()">
-                    📢 Enviar Notificação
-                </button>
+                <p>Clique abaixo para enviar uma notificação aos outros usuários online:</p>
+                <button id="sendBtn" onclick="app.sendNotification()">📢 Enviar Notificação</button>
             </div>
-
-            <div class="notifications-section">
+            <div>
                 <h3>📥 Notificações Pendentes (<span id="notificationCount">0</span>)</h3>
                 <div id="notificationsList">
                     <p style="text-align: center; color: #666; font-style: italic;">Nenhuma notificação pendente</p>
                 </div>
             </div>
-
-            <div class="status-section">
+            <div>
                 <h3>👥 Usuários na Sala (<span id="onlineCount">0</span>)</h3>
-                <div class="users-online" id="usersOnline">
-                    <!-- Status dos usuários será inserido aqui -->
-                </div>
-                
-                <div class="stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="totalNotifications">0</div>
-                        <div class="stat-label">Notificações Enviadas</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="totalResponses">0</div>
-                        <div class="stat-label">Respostas Dadas</div>
-                    </div>
-                </div>
+                <div id="usersOnline"></div>
             </div>
         </div>
     </div>
@@ -481,383 +249,157 @@
     <script>
         class RealTimeNotificationApp {
             constructor() {
-                this.ws = null;
+                this.users = ['Usuário 1', 'Usuário 2', 'Usuário 3', 'Usuário 4', 'Usuário 5', 'Usuário 6'];
+                this.onlineUsers = new Map();
+                this.notifications = new Map();
                 this.currentUser = null;
                 this.roomCode = null;
-                this.users = ['Usuário 1', 'Usuário 2', 'Usuário 3', 'Usuário 4', 'Usuário 5', 'Usuário 6'];
-                this.onlineUsers = new Map(); // Map with user details
-                this.notifications = new Map();
-                this.stats = {
-                    notificationsSent: 0,
-                    responsesGiven: 0
-                };
-                this.reconnectAttempts = 0;
-                this.maxReconnectAttempts = 5;
                 this.init();
             }
 
             init() {
-                this.setupEventListeners();
-                this.updateConnectionStatus('connecting');
-                
-                // Generate random room code if not provided
-                const urlParams = new URLSearchParams(window.location.search);
-                const roomFromUrl = urlParams.get('room');
-                if (roomFromUrl) {
-                    document.getElementById('roomCode').value = roomFromUrl;
-                } else {
-                    document.getElementById('roomCode').value = this.generateRoomCode();
-                }
+                this.updateUserSelection();
             }
 
-            generateRoomCode() {
-                return Math.random().toString(36).substring(2, 8).toUpperCase();
-            }
-
-            setupEventListeners() {
-                // Enter key on room code input
-                document.getElementById('roomCode').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        const firstAvailableUser = this.users.find(user => !this.onlineUsers.has(user));
-                        if (firstAvailableUser) {
-                            this.selectUser(firstAvailableUser);
-                        }
-                    }
+            updateUserSelection() {
+                const userSelection = document.getElementById('userSelection');
+                userSelection.innerHTML = '';
+                this.users.sort(); // Ordenar usuários alfabeticamente
+                this.users.forEach(user => {
+                    const btn = document.createElement('button');
+                    btn.textContent = user;
+                    btn.className = 'user-card';
+                    if (this.onlineUsers.has(user)) btn.classList.add('taken');
+                    btn.onclick = () => this.selectUser(user);
+                    userSelection.appendChild(btn);
                 });
-
-                // Prevent page refresh
-                window.addEventListener('beforeunload', () => {
-                    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                        this.ws.close();
-                    }
-                });
-            }
-
-            connectWebSocket() {
-                try {
-                    // Using a public WebSocket service for demonstration
-                    // In production, you'd use your own WebSocket server
-                    this.ws = new WebSocket('wss://ws.postman-echo.com/raw');
-                    
-                    this.ws.onopen = () => {
-                        console.log('WebSocket conectado!');
-                        this.updateConnectionStatus('connected');
-                        this.reconnectAttempts = 0;
-                        
-                        // Join room
-                        this.sendMessage({
-                            type: 'join_room',
-                            room: this.roomCode,
-                            user: this.currentUser,
-                            timestamp: Date.now()
-                        });
-                    };
-
-                    this.ws.onmessage = (event) => {
-                        try {
-                            const message = JSON.parse(event.data);
-                            this.handleMessage(message);
-                        } catch (error) {
-                            console.log('Mensagem recebida:', event.data);
-                        }
-                    };
-
-                    this.ws.onclose = () => {
-                        console.log('WebSocket desconectado!');
-                        this.updateConnectionStatus('disconnected');
-                        this.attemptReconnect();
-                    };
-
-                    this.ws.onerror = (error) => {
-                        console.error('Erro no WebSocket:', error);
-                        this.updateConnectionStatus('disconnected');
-                    };
-
-                } catch (error) {
-                    console.error('Erro ao conectar WebSocket:', error);
-                    this.updateConnectionStatus('disconnected');
-                    this.attemptReconnect();
-                }
-            }
-
-            attemptReconnect() {
-                if (this.reconnectAttempts < this.maxReconnectAttempts && this.currentUser) {
-                    this.reconnectAttempts++;
-                    this.updateConnectionStatus('connecting');
-                    setTimeout(() => {
-                        console.log(`Tentativa de reconexão ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
-                        this.connectWebSocket();
-                    }, 2000 * this.reconnectAttempts);
-                }
-            }
-
-            sendMessage(message) {
-                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                    // Add room and user info to all messages
-                    message.room = this.roomCode;
-                    message.from = this.currentUser;
-                    this.ws.send(JSON.stringify(message));
-                    
-                    // Simulate message handling for demo purposes
-                    // In real implementation, you'd only handle messages from other users
-                    setTimeout(() => {
-                        if (message.type !== 'join_room') {
-                            this.simulateMessageBroadcast(message);
-                        }
-                    }, 100);
-                }
-            }
-
-            simulateMessageBroadcast(originalMessage) {
-                // Simulate receiving the message as if from other users
-                // This is just for demonstration - in real app, server would handle this
-                if (originalMessage.type === 'notification') {
-                    // Simulate other users receiving the notification
-                    const otherUsers = Array.from(this.onlineUsers.keys()).filter(u => u !== this.currentUser);
-                    otherUsers.forEach(user => {
-                        // Don't add notification for the sender
-                        if (user !== originalMessage.from) {
-                            this.notifications.set(`${originalMessage.id}_${user}`, {
-                                ...originalMessage,
-                                targetUser: user
-                            });
-                        }
-                    });
-                    this.updateNotificationsList();
-                }
-            }
-
-            handleMessage(message) {
-                if (!message.room || message.room !== this.roomCode) return;
-
-                switch (message.type) {
-                    case 'join_room':
-                        if (message.user && message.user !== this.currentUser) {
-                            this.onlineUsers.set(message.user, {
-                                name: message.user,
-                                joinedAt: message.timestamp || Date.now()
-                            });
-                            this.updateUsersStatus();
-                            this.showSystemMessage(`${message.user} entrou na sala`);
-                        }
-                        break;
-
-                    case 'leave_room':
-                        if (message.user) {
-                            this.onlineUsers.delete(message.user);
-                            this.updateUsersStatus();
-                            this.showSystemMessage(`${message.user} saiu da sala`);
-                        }
-                        break;
-
-                    case 'notification':
-                        if (message.from !== this.currentUser) {
-                            this.receiveNotification(message);
-                        }
-                        break;
-
-                    case 'notification_response':
-                        this.handleNotificationResponse(message);
-                        break;
-                }
             }
 
             selectUser(username) {
-                const roomCode = document.getElementById('roomCode').value.trim().toUpperCase();
+                const roomInput = document.getElementById('roomCode');
+                const roomCode = roomInput.value.trim().toUpperCase();
                 if (!roomCode) {
-                    alert('Por favor, digite um código da sala!');
-                    document.getElementById('roomCode').focus();
+                    alert('⚠️ Por favor, digite o código da sala.');
+                    roomInput.focus();
                     return;
                 }
 
                 if (this.onlineUsers.has(username)) {
-                    alert('Este usuário já está conectado nesta sala!');
+                    alert('⚠️ Este usuário já está conectado nesta sala.');
                     return;
                 }
 
                 this.currentUser = username;
                 this.roomCode = roomCode;
-                
-                // Add current user to online users
-                this.onlineUsers.set(username, {
-                    name: username,
-                    joinedAt: Date.now(),
-                    isCurrentUser: true
-                });
-
-                // Update URL with room code
-                const newUrl = new URL(window.location);
-                newUrl.searchParams.set('room', roomCode);
-                window.history.replaceState({}, '', newUrl);
-                
+                this.onlineUsers.set(username, { name: username, joinedAt: Date.now() });
                 document.getElementById('currentUserName').textContent = username;
                 document.getElementById('currentRoomCode').textContent = roomCode;
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
-                
-                this.connectWebSocket();
+                this.updateConnectionStatus('connected');
                 this.updateUsersStatus();
-                
-                // Simulate other users in the room
-                this.simulateOtherUsers();
-            }
-
-            simulateOtherUsers() {
-                // Add some simulated users after a delay to make it feel more realistic
-                setTimeout(() => {
-                    const availableUsers = this.users.filter(u => u !== this.currentUser);
-                    const randomCount = Math.floor(Math.random() * 2) + 1; // 1-2 other users
-                    
-                    for (let i = 0; i < randomCount; i++) {
-                        const randomUser = availableUsers[Math.floor(Math.random() * availableUsers.length)];
-                        if (!this.onlineUsers.has(randomUser)) {
-                            this.onlineUsers.set(randomUser, {
-                                name: randomUser,
-                                joinedAt: Date.now() - Math.random() * 60000 // Joined within last minute
-                            });
-                        }
-                    }
-                    this.updateUsersStatus();
-                }, 2000);
-            }
-
-            logout() {
-                if (this.currentUser && this.ws && this.ws.readyState === WebSocket.OPEN) {
-                    this.sendMessage({
-                        type: 'leave_room',
-                        user: this.currentUser
-                    });
-                }
-                
-                if (this.ws) {
-                    this.ws.close();
-                }
-                
-                this.currentUser = null;
-                this.roomCode = null;
-                this.onlineUsers.clear();
-                this.notifications.clear();
-                
-                document.getElementById('loginSection').style.display = 'block';
-                document.getElementById('mainApp').style.display = 'none';
-                
-                this.updateConnectionStatus('disconnected');
                 this.updateUserSelection();
-                this.updateNotificationsList();
-                
-                // Clear URL parameters
-                window.history.replaceState({}, '', window.location.pathname);
+            }
+
+            updateUsersStatus() {
+                const usersOnline = document.getElementById('usersOnline');
+                const onlineCount = document.getElementById('onlineCount');
+                usersOnline.innerHTML = '';
+                onlineCount.textContent = this.onlineUsers.size;
+
+                this.users.forEach(user => {
+                    const div = document.createElement('div');
+                    div.className = 'user-status';
+                    if (this.onlineUsers.has(user)) {
+                        div.classList.add('online');
+                        if (user === this.currentUser) div.classList.add('current-user');
+                        div.innerHTML = `🟢 ${user}`;
+                    } else {
+                        div.classList.add('offline');
+                        div.innerHTML = `⚫ ${user}`;
+                    }
+                    usersOnline.appendChild(div);
+                });
             }
 
             sendNotification() {
-                if (!this.currentUser || !this.ws || this.ws.readyState !== WebSocket.OPEN) {
-                    alert('Não foi possível enviar a notificação. Verifique sua conexão.');
+                if (!this.currentUser) {
+                    alert('⚠️ Você não está conectado.');
                     return;
                 }
 
-                const otherUsers = Array.from(this.onlineUsers.keys()).filter(u => u !== this.currentUser);
-                if (otherUsers.length === 0) {
-                    alert('Nenhum outro usuário online para receber a notificação.\n\n💡 Compartilhe o código da sala com outros usuários!');
+                const others = Array.from(this.onlineUsers.keys()).filter(u => u !== this.currentUser);
+                if (others.length === 0) {
+                    alert('⚠️ Nenhum outro usuário online para receber a notificação.');
                     return;
                 }
 
-                const notificationId = Date.now().toString();
-                const notification = {
-                    type: 'notification',
-                    id: notificationId,
-                    message: `${this.currentUser} enviou uma notificação que precisa de confirmação`,
-                    timestamp: new Date().toLocaleTimeString(),
-                    urgent: Math.random() < 0.3 // 30% chance of urgent notification
+                const id = Date.now().toString();
+                const notif = {
+                    id: id,
+                    from: this.currentUser,
+                    message: `📢 ${this.currentUser} enviou uma notificação.`,
+                    timestamp: new Date().toLocaleTimeString()
                 };
-
-                this.sendMessage(notification);
-                this.stats.notificationsSent++;
-                this.updateStats();
-
-                const btn = document.getElementById('sendBtn');
-                btn.disabled = true;
-                btn.innerHTML = '📤 Enviando...';
-                
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerHTML = '📢 Enviar Notificação';
-                    alert(`✅ Notificação enviada para ${otherUsers.length} usuário(s)!`);
-                }, 1000);
+                this.notifications.set(id, notif);
+                this.updateNotificationsList();
+                alert('✅ Notificação enviada!');
             }
 
-            receiveNotification(notification) {
-                const notificationKey = `${notification.id}_${this.currentUser}`;
-                this.notifications.set(notificationKey, notification);
-                this.updateNotificationsList();
-                this.playNotificationSound();
-                
-                // Show browser notification if permission granted
-                if (Notification.permission === 'granted') {
-                    new Notification('Nova Notificação!', {
-                        body: notification.message,
-                        icon: '🔔'
+            updateNotificationsList() {
+                const notifList = document.getElementById('notificationsList');
+                const notifCount = document.getElementById('notificationCount');
+                notifList.innerHTML = '';
+
+                if (this.notifications.size === 0) {
+                    notifList.innerHTML = '<p style="text-align:center;color:#666;font-style:italic;">Nenhuma notificação pendente</p>';
+                } else {
+                    this.notifications.forEach((notif, id) => {
+                        const div = document.createElement('div');
+                        div.style.padding = '8px';
+                        div.style.border = '1px solid #ccc';
+                        div.style.marginBottom = '5px';
+                        div.style.borderRadius = '5px';
+                        div.style.background = '#f1f1f1';
+                        div.innerHTML = `
+                            <strong>${notif.message}</strong><br>
+                            <small>${notif.timestamp}</small><br>
+                            <button onclick="app.removeNotification('${id}')">✅ Confirmar</button>
+                        `;
+                        notifList.appendChild(div);
                     });
                 }
+
+                notifCount.textContent = this.notifications.size;
             }
 
-            respondToNotification(notificationId, response) {
-                const notificationKey = Array.from(this.notifications.keys())
-                    .find(key => key.startsWith(notificationId));
-                
-                const notification = this.notifications.get(notificationKey);
-                if (!notification) return;
-
-                const responseMsg = {
-                    type: 'notification_response',
-                    notificationId: notificationId,
-                    response: response,
-                    respondent: this.currentUser,
-                    targetUser: notification.from
-                };
-
-                this.sendMessage(responseMsg);
-                this.notifications.delete(notificationKey);
-                this.stats.responsesGiven++;
-                this.updateStats();
-                this.updateNotificationsList();
-
-                this.showSystemMessage(`Você respondeu: ${response ? 'SIM ✅' : 'NÃO ❌'}`);
+            removeNotification(id) {
+                if (this.notifications.has(id)) {
+                    this.notifications.delete(id);
+                    this.updateNotificationsList();
+                    alert('✅ Notificação confirmada!');
+                }
             }
 
-            handleNotificationResponse(response) {
-                this.showSystemMessage(`${response.respondent} respondeu: ${response.response ? 'SIM ✅' : 'NÃO ❌'}`);
+            logout() {
+                this.onlineUsers.clear();
+                this.notifications.clear();
+                this.currentUser = null;
+                this.roomCode = null;
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('mainApp').style.display = 'none';
+                this.updateUserSelection();
+                this.updateConnectionStatus('demo');
             }
 
-            showSystemMessage(message) {
-                // You could implement a toast notification system here
-                console.log('Sistema:', message);
+            updateConnectionStatus(status) {
+                const statusDiv = document.getElementById('connectionStatus');
+                statusDiv.textContent = status === 'connected' ? '🟢 Conectado' : '🔴 Modo Demonstração';
             }
+        }
 
-            playNotificationSound() {
-                // Create a simple beep sound
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 800;
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.01);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.3);
-            }
+        const app = new RealTimeNotificationApp();
+    </script>
+</body>
 
-            updateUserSelection() {
-                const userCards = document.querySelectorAll('.user-card');
-                userCards.forEach(card => {
-                    const username = card.textContent.replace(/[^a-zA-Z0-9\s]/g, '').trim();
-                    if (this.onlineUsers.has(username)) {
-                        card.classList.add('taken');
-                    } else {
-                        card.classList.remove('taken');
+</html>
