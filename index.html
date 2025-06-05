@@ -182,7 +182,7 @@
             }
 
             connectWebSocket() {
-                this.ws = new WebSocket('ws://localhost:8080');
+                this.ws = new WebSocket('https://flez.onrender.com');
 
                 this.ws.onopen = () => {
                     console.log('WebSocket conectado');
